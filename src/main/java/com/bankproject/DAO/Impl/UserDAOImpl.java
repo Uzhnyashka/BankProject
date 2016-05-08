@@ -92,7 +92,11 @@ public class UserDAOImpl implements UserDAO {
         System.out.println(user);
         if (user.getId() == null) user.setId(newUser.getId());
         if (user.getUsername() == null) user.setUsername(newUser.getUsername());
-        if (user.getRole() == null) user.setRole(newUser.getRole());
+        if (user.getRole() != null) {
+            if (CustomUserDetailService.getRole().equalsIgnoreCase("user")) {
+                throw new AccessDeniedException("");
+            }
+        }else user.setRole(newUser.getRole());
         if (user.getName() == null) user.setName(newUser.getName());
         if (user.getPhone() == null) user.setPhone(newUser.getPhone());
         if (user.getPassword() != null){

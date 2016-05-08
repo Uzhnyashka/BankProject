@@ -63,7 +63,7 @@ public class UserService {
     }
 
     @DELETE
-    @Path("/{username}")
+    @Path("/{username}")//checked
     public Response deleteUser(@PathParam("username") String username){
         UserObject usr = null;
         try{
@@ -95,5 +95,19 @@ public class UserService {
             return Response.status(403).build();
         }
         return Response.status(200).entity("Good").build();
+    }
+
+    @GET
+    @Path("/get/{username}")//checked
+    @Produces(MediaType.APPLICATION_JSON)
+    public UserOutputObject getUserByUsername(@PathParam("username") String username){
+        UserOutputObject user = null;
+        try{
+            user = userOutputDAO.getUserByUsername(username);
+        }catch (Exception e){
+            e.printStackTrace();
+        }
+
+        return user;
     }
 }

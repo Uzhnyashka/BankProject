@@ -3,6 +3,8 @@ package com.bankproject.DAO.Impl;
 import com.bankproject.DAO.UserOutputDAO;
 import com.bankproject.objects.UserObject;
 import com.bankproject.objects.UserOutputObject;
+import com.bankproject.services.CustomUserDetailService;
+import org.springframework.security.access.AccessDeniedException;
 
 import java.sql.SQLException;
 import java.util.ArrayList;
@@ -37,6 +39,12 @@ public class UserOutputDAOImpl implements UserOutputDAO {
 
     @Override
     public UserOutputObject getUserByUsername(String username) throws SQLException {
+
+        if (CustomUserDetailService.getRole().equalsIgnoreCase("user") &&
+                !CustomUserDetailService.getUsername().equals(username)){
+            throw new AccessDeniedException("");
+        }
+
         UserObject user = userDAO.getUserByUsername(username);
         UserOutputObject userOutput = new UserOutputObject();
         userOutput.setName(user.getName());

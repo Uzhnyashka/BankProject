@@ -28,7 +28,7 @@ public class OrderService {
     private static OrderDAOImpl orderDAO = new OrderDAOImpl();
     private static UserDAOImpl userDAO = new UserDAOImpl();
 
-    @GET//get all orders
+    @GET
     @Path("/list")
     @Produces(MediaType.APPLICATION_JSON)
     public List<OrderObject> getAllOrders(){
@@ -57,7 +57,7 @@ public class OrderService {
     }
 
     @PUT
-    @Path("/update")
+    @Path("/update")//checked
     @Consumes(MediaType.APPLICATION_JSON)
     public Response updateOrder(OrderObject order){
         try{
@@ -70,7 +70,7 @@ public class OrderService {
     }
 
     @GET
-    @Path("/{username}")
+    @Path("/{username}")//checked
     @Produces(MediaType.APPLICATION_JSON)
     public List<OrderObject> getOrdersForUser(@PathParam("username") String username){
         List<OrderObject> orders = new ArrayList<OrderObject>();
@@ -83,12 +83,13 @@ public class OrderService {
     }
 
     @GET
-    @Path("/get/{id}")
+    @Path("/get/{id}")//checked
     @Produces(MediaType.APPLICATION_JSON)
     public OrderObject getOrderById(@PathParam("id") Long id){
         OrderObject order = null;
         try{
             order = orderDAO.getOrderById(id);
+            System.out.println(order);
         }catch (Exception e){
             e.printStackTrace();
         }

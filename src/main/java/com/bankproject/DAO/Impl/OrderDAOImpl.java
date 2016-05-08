@@ -43,7 +43,7 @@ public class OrderDAOImpl implements OrderDAO{
             session.save(order);
             session.getTransaction().commit();
         }catch (Exception e){
-            JOptionPane.showMessageDialog(null, e.getMessage(), "add() fail for Order", JOptionPane.OK_OPTION);
+            throw new SQLException();
         }finally {
             if (session != null && session.isOpen()){
                 session.close();
@@ -52,7 +52,9 @@ public class OrderDAOImpl implements OrderDAO{
     }
 
     private OrderObject fillEmptyFields(OrderObject order, OrderObject newOrder){
-        if (order.getUserId() == null) order.setUserId(newOrder.getUserId());
+        if (order.getUserId() != null) {
+            throw new AccessDeniedException("");
+        }else order.setUserId(newOrder.getUserId());
         if (order.getStatus() == null) order.setStatus(newOrder.getStatus());
         if (order.getAmount() == null) order.setAmount(newOrder.getAmount());
         if (order.getCashType() == null) order.setCashType(newOrder.getCashType());
@@ -81,7 +83,7 @@ public class OrderDAOImpl implements OrderDAO{
             session.update(order);
             session.getTransaction().commit();
         }catch (Exception e){
-            JOptionPane.showMessageDialog(null, e.getMessage(), "update() fail for Order", JOptionPane.OK_OPTION);
+            throw new SQLException();
         }finally {
             if (session != null && session.isOpen()){
                 session.close();
@@ -102,7 +104,7 @@ public class OrderDAOImpl implements OrderDAO{
             session.delete(order);
             session.getTransaction().commit();
         }catch (Exception e){
-            JOptionPane.showMessageDialog(null, e.getMessage(), "delete() fail for Order", JOptionPane.OK_OPTION);
+            throw new SQLException();
         }finally {
             if (session != null && session.isOpen()){
                 session.close();
@@ -117,7 +119,7 @@ public class OrderDAOImpl implements OrderDAO{
             session = HibernateUtil.getSessionFactory().openSession();
             orders = session.createCriteria(OrderObject.class).list();
         }catch (Exception e){
-            JOptionPane.showMessageDialog(null, e.getMessage(), "getAll() fail for Orders", JOptionPane.OK_OPTION);
+            throw new SQLException();
         }finally {
             if (session != null && session.isOpen()){
                 session.close();
@@ -160,26 +162,18 @@ public class OrderDAOImpl implements OrderDAO{
     }
 
 
-    public OrderObject getOrderById(Long id) throws SQLException{
-        Session session = null;
-        OrderObject order = null;
-        try {
-            session = HibernateUtil.getSessionFactory().openSession();
-            order = (OrderObject) session.load(OrderObject.class, id);
-            System.out.println(order);
-        }catch (Exception e){
-            JOptionPane.showMessageDialog(null, e.getMessage(), "getOrderById() fail for Orders", JOptionPane.OK_OPTION);
-        }finally {
-            if (session != null && session.isOpen()) {
-                session.close();
+    public OrderObject getOrderById(Long id) throws SQLException, AccessDeniedException{
+        List<OrderObject> orders = getAllOrders();
+        UserObject user = userDAO.getUserByUsername(CustomUserDetailService.getUsername());
+        for (OrderObject order : orders){
+            if (order.getId().equals(id)) {
+                if (CustomUserDetailService.getRole().equalsIgnoreCase("user") && !user.getId().equals(order.getUserId())){
+                    throw new AccessDeniedException("Access denied");
+                }
+                return order;
             }
         }
-        if (order == null) return null;
-        UserObject user = userDAO.getUserByUsername(CustomUserDetailService.getUsername());
-        if (CustomUserDetailService.getRole().equalsIgnoreCase("user") && !user.getId().equals(order.getUserId())){
-            throw new AccessDeniedException("Access denied");
-        }
-        return order;
+        return null;
     }
 
 }

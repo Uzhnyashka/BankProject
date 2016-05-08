@@ -11,6 +11,7 @@
         <intercept-url pattern="/rest/users/add" access="hasRole('ROLE_ADMIN')"/>
         <intercept-url pattern="/rest/users/update" access="hasRole('ROLE_ADMIN') or hasRole('ROLE_USER')"/>
         <intercept-url pattern="/rest/users/**" method="DELETE" access="hasRole('ROLE_ADMIN')"/>
+        <intercept-url pattern="/rest/users/get/**" access="hasRole('ROLE_ADMIN') or hasRole('ROLE_USER')"/>
 
         <intercept-url pattern="/rest/orders/**" access="hasRole('ROLE_ADMIN') or hasRole('ROLE_USER')"/>
         <logout logout-url="/logout"/>
