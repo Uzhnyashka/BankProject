@@ -37,7 +37,7 @@ public class OrderClientPost {
 
             System.out.println(input);
 
-            ClientResponse response = webResource.type("application/json")
+          /*  ClientResponse response = webResource.type("application/json")
                     .post(ClientResponse.class, input);
 
             if (response.getStatus() >= 400) {
@@ -47,7 +47,7 @@ public class OrderClientPost {
 
             System.out.println("Output from Server .... \n");
             String output = response.getEntity(String.class);
-            System.out.println(output);
+            System.out.println(output);*/
 
         } catch (Exception e) {
 

@@ -7,7 +7,9 @@ import com.bankproject.objects.UserObject;
 import com.bankproject.services.CustomUserDetailService;
 import com.bankproject.utils.HibernateUtil;
 import com.sun.org.apache.xpath.internal.operations.Or;
+import org.hibernate.Criteria;
 import org.hibernate.Session;
+import org.hibernate.criterion.Restrictions;
 import org.hibernate.dialect.H2Dialect;
 import org.springframework.security.access.AccessDeniedException;
 
@@ -49,7 +51,24 @@ public class OrderDAOImpl implements OrderDAO{
         }
     }
 
+    private OrderObject fillEmptyFields(OrderObject order, OrderObject newOrder){
+        if (order.getUserId() == null) order.setUserId(newOrder.getUserId());
+        if (order.getStatus() == null) order.setStatus(newOrder.getStatus());
+        if (order.getAmount() == null) order.setAmount(newOrder.getAmount());
+        if (order.getCashType() == null) order.setCashType(newOrder.getCashType());
+        if (order.getCreationDate() == null) order.setCreationDate(newOrder.getCreationDate());
+        if (order.getOperationType() == null) order.setOperationType(newOrder.getOperationType());
+
+        return order;
+    }
+
     public void updateOrder(OrderObject order) throws SQLException, AccessDeniedException {
+        if (order.getId() == null){
+            throw new NullPointerException("Fail data");
+        }
+        OrderObject newOrder = getOrderById(order.getId());
+        order = fillEmptyFields(order, newOrder);
+
         if (CustomUserDetailService.getRole().equalsIgnoreCase("user")){
             UserObject user = userDAO.getUserByUsername(CustomUserDetailService.getUsername());
             if (!order.getUserId().equals(user.getId())) throw new AccessDeniedException("Access Denied");
@@ -70,7 +89,12 @@ public class OrderDAOImpl implements OrderDAO{
         }
     }
 
-    public void deleteOrder(OrderObject order) throws SQLException {
+    public void deleteOrder(OrderObject order) throws SQLException, AccessDeniedException{
+        UserObject user = userDAO.getUserByUsername(CustomUserDetailService.getUsername());
+        if (CustomUserDetailService.getRole().equalsIgnoreCase("user") && !user.getId().equals(order.getUserId())){
+            throw new AccessDeniedException("Access denied");
+        }
+
         Session session = null;
         try {
             session = HibernateUtil.getSessionFactory().openSession();
@@ -101,10 +125,8 @@ public class OrderDAOImpl implements OrderDAO{
         }
 
         if (CustomUserDetailService.getRole().equalsIgnoreCase("user")){
-            System.out.println("user");
             List<OrderObject> ordersForUser = new ArrayList<OrderObject>();
             UserObject user = userDAO.getUserByUsername(CustomUserDetailService.getUsername());
-            System.out.println(user.getUsername() + " " + user.getId());
             for(OrderObject order : orders){
                 if (order.getUserId().equals(user.getId()) ||
                         order.getStatus().equalsIgnoreCase("publish")) ordersForUser.add(order);
@@ -116,17 +138,25 @@ public class OrderDAOImpl implements OrderDAO{
 
     @Override
     public List<OrderObject> getOrdersByUsername(String login) throws SQLException, AccessDeniedException {
+        Session session = null;
+        List<OrderObject> orders = new ArrayList<OrderObject>();
+        UserObject user = userDAO.getUserByUsername(login);
         if (CustomUserDetailService.getRole().equalsIgnoreCase("user")
                 && !CustomUserDetailService.getUsername().equalsIgnoreCase(login)) throw new AccessDeniedException("Access denied");
-        UserObject user = userDAO.getUserByUsername(login);
-        List<OrderObject> orderList = new ArrayList<OrderObject>();
-        orderList = getAllOrders();
-
-        List<OrderObject> ordersForUser = new ArrayList<OrderObject>();
-        for (OrderObject order : orderList){
-            if (order.getUserId().equals(user.getId())) ordersForUser.add(order);
+        try{
+            session = HibernateUtil.getSessionFactory().openSession();
+            session.getTransaction();
+            Criteria cr = session.createCriteria(OrderObject.class);
+            cr.add(Restrictions.eq("userId", user.getId()));
+            orders = cr.list();
+        }catch (Exception e){
+            e.printStackTrace();
+        }finally {
+            if (session != null && session.isOpen()){
+                session.close();
+            }
         }
-        return ordersForUser;
+        return orders;
     }
 
 
@@ -136,12 +166,18 @@ public class OrderDAOImpl implements OrderDAO{
         try {
             session = HibernateUtil.getSessionFactory().openSession();
             order = (OrderObject) session.load(OrderObject.class, id);
+            System.out.println(order);
         }catch (Exception e){
             JOptionPane.showMessageDialog(null, e.getMessage(), "getOrderById() fail for Orders", JOptionPane.OK_OPTION);
         }finally {
-            if (session != null && session.isOpen()){
+            if (session != null && session.isOpen()) {
                 session.close();
             }
+        }
+        if (order == null) return null;
+        UserObject user = userDAO.getUserByUsername(CustomUserDetailService.getUsername());
+        if (CustomUserDetailService.getRole().equalsIgnoreCase("user") && !user.getId().equals(order.getUserId())){
+            throw new AccessDeniedException("Access denied");
         }
         return order;
     }

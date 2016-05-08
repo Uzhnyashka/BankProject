@@ -18,23 +18,23 @@ public class OrderObject implements Serializable {
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
 
-    @Column(name = "user_id")
+    @Column(name = "user_id", nullable = false)
     private Long userId;
 
-    @Column(name = "cash_type")
+    @Column(name = "cash_type", nullable = false)
     private String cashType;
 
-    @Column(name = "operation_type")
+    @Column(name = "operation_type", nullable = false)
     private String operationType;
 
-    @Column(name = "creation_date")
+    @Column(name = "creation_date", nullable = false)
     @Temporal(value = TemporalType.DATE)
     private Date creationDate;
 
-    @Column(name = "amount")
+    @Column(name = "amount", nullable = false)
     private Long amount;
 
-    @Column(name = "status")
+    @Column(name = "status", nullable = false)
     private String status;
 
     public Long getId() {

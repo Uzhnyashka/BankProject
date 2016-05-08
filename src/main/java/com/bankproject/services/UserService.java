@@ -1,8 +1,10 @@
 package com.bankproject.services;
 
 import com.bankproject.DAO.Impl.UserDAOImpl;
+import com.bankproject.DAO.Impl.UserOutputDAOImpl;
 import com.bankproject.objects.TestObject;
 import com.bankproject.objects.UserObject;
+import com.bankproject.objects.UserOutputObject;
 import org.springframework.security.access.annotation.Secured;
 import org.springframework.security.core.authority.GrantedAuthorityImpl;
 
@@ -21,22 +23,23 @@ import java.util.List;
 public class UserService {
 
     private UserDAOImpl userDAO = new UserDAOImpl();
+    private UserOutputDAOImpl userOutputDAO = new UserOutputDAOImpl();
 
     @GET
-    @Path("/list")
+    @Path("/list") //checked
     @Produces(MediaType.APPLICATION_JSON)
-    public List<UserObject> getAllUsers(){
-        List<UserObject> users = new ArrayList<UserObject>();
+    public List<UserOutputObject> getAllUsers(){
+        List<UserOutputObject> users = new ArrayList<UserOutputObject>();
         if (CustomUserDetailService.getRole().equalsIgnoreCase("admin")){
             try {
-                users = userDAO.getAllUsers();
+                users = userOutputDAO.getAllUsers();
             }catch (Exception e){
                 e.printStackTrace();
             }
         }
         else {
             try{
-                users.add(userDAO.getUserByUsername(CustomUserDetailService.getUsername()));
+                users.add(userOutputDAO.getUserByUsername(CustomUserDetailService.getUsername()));
             }catch (Exception e){
                 e.printStackTrace();
             }
@@ -45,7 +48,7 @@ public class UserService {
     }
 
     @POST
-    @Path("/add")
+    @Path("/add")//checked
     @Consumes(MediaType.APPLICATION_JSON)
     public Response addUser(UserObject usr){
 
@@ -81,7 +84,7 @@ public class UserService {
     }
 
     @PUT
-    @Path("/update")
+    @Path("/update")//checked
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
     public Response updateUser(UserObject usr){
