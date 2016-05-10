@@ -1,5 +1,7 @@
 package com.bankproject.services;
 
+import com.bankproject.DAO.Impl.OrderOutputDAOImpl;
+import com.bankproject.objects.OrderOutputObject;
 import com.sun.org.apache.xpath.internal.operations.Or;
 import com.bankproject.DAO.Impl.OrderDAOImpl;
 import com.bankproject.DAO.Impl.UserDAOImpl;
@@ -25,16 +27,16 @@ import java.util.List;
 @Path("/orders")
 public class OrderService {
 
-    private static OrderDAOImpl orderDAO = new OrderDAOImpl();
-    private static UserDAOImpl userDAO = new UserDAOImpl();
+    private OrderDAOImpl orderDAO = new OrderDAOImpl();
+    private OrderOutputDAOImpl orderOutputDAO = new OrderOutputDAOImpl();
 
     @GET
-    @Path("/list")
+    @Path("/list")//checked
     @Produces(MediaType.APPLICATION_JSON)
-    public List<OrderObject> getAllOrders(){
-        List<OrderObject> orders = new ArrayList<OrderObject>();
+    public List<OrderOutputObject> getAllOrders(){
+        List<OrderOutputObject> orders = new ArrayList<OrderOutputObject>();
         try{
-            orders = orderDAO.getAllOrders();
+            orders = orderOutputDAO.getAllOrders();
         }catch (Exception e){
             e.printStackTrace();
         }
@@ -44,7 +46,7 @@ public class OrderService {
     @POST//add order
     @Path("/add")
     @Produces(MediaType.APPLICATION_JSON)
-    public Response addOrder(OrderObject order) throws SQLException, AccessDeniedException{
+    public Response addOrder(OrderObject order) throws Exception{
         try{
             orderDAO.addOrder(order);
         }catch (Exception e){
@@ -72,10 +74,10 @@ public class OrderService {
     @GET
     @Path("/{username}")//checked
     @Produces(MediaType.APPLICATION_JSON)
-    public List<OrderObject> getOrdersForUser(@PathParam("username") String username){
-        List<OrderObject> orders = new ArrayList<OrderObject>();
+    public List<OrderOutputObject> getOrdersForUser(@PathParam("username") String username){
+        List<OrderOutputObject> orders = new ArrayList<OrderOutputObject>();
         try{
-            orders = orderDAO.getOrdersByUsername(username);
+            orders = orderOutputDAO.getOrdersByUsername(username);
         }catch (Exception e){
             e.printStackTrace();
         }
@@ -85,10 +87,10 @@ public class OrderService {
     @GET
     @Path("/get/{id}")//checked
     @Produces(MediaType.APPLICATION_JSON)
-    public OrderObject getOrderById(@PathParam("id") Long id){
-        OrderObject order = null;
+    public OrderOutputObject getOrderById(@PathParam("id") Long id){
+        OrderOutputObject order = null;
         try{
-            order = orderDAO.getOrderById(id);
+            order = orderOutputDAO.getOrderById(id);
             System.out.println(order);
         }catch (Exception e){
             e.printStackTrace();
@@ -104,15 +106,13 @@ public class OrderService {
             orderObject = orderDAO.getOrderById(id);
         }catch (Exception e){
             e.printStackTrace();
-            return Response.status(484).build();
+            return Response.status(404).build();
         }
-        if (orderObject == null) System.out.println(1337);
-        else System.out.println(228);
         try {
             orderDAO.deleteOrder(orderObject);
         }catch (Exception e){
             e.printStackTrace();
-            return Response.status(444).build();
+            return Response.status(404).build();
         }
 
         String result = "Delete " + orderObject;

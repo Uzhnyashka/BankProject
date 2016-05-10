@@ -144,4 +144,19 @@ public class UserDAOImpl implements UserDAO {
         }
         return userObject;
     }
+
+    @Override
+    public UserObject getUserById(Long id) throws SQLException{
+        List<UserObject> users = getAllUsers();
+        UserObject userObject = null;
+
+        for (UserObject user : users){
+            if (id.equals(user.getId())){
+                userObject = user;
+                break;
+            }
+        }
+        System.out.println(userObject);
+        return userObject;
+    }
 }

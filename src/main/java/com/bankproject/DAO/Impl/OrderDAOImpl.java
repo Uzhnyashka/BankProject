@@ -167,6 +167,9 @@ public class OrderDAOImpl implements OrderDAO{
         UserObject user = userDAO.getUserByUsername(CustomUserDetailService.getUsername());
         for (OrderObject order : orders){
             if (order.getId().equals(id)) {
+                System.out.println(order.getId());
+                System.out.println(order.getUserId());
+                System.out.println(id);
                 if (CustomUserDetailService.getRole().equalsIgnoreCase("user") && !user.getId().equals(order.getUserId())){
                     throw new AccessDeniedException("Access denied");
                 }
