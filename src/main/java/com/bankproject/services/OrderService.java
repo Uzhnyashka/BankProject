@@ -2,7 +2,6 @@ package com.bankproject.services;
 
 import com.bankproject.DAO.Impl.OrderOutputDAOImpl;
 import com.bankproject.objects.OrderOutputObject;
-import com.sun.org.apache.xpath.internal.operations.Or;
 import com.bankproject.DAO.Impl.OrderDAOImpl;
 import com.bankproject.DAO.Impl.UserDAOImpl;
 import com.bankproject.objects.OrderObject;
@@ -19,6 +18,7 @@ import javax.ws.rs.core.Response;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.zip.DataFormatException;
 
 /**
  * Created by bobyk on 27/04/16.
@@ -49,9 +49,12 @@ public class OrderService {
     public Response addOrder(OrderObject order) throws Exception{
         try{
             orderDAO.addOrder(order);
-        }catch (Exception e){
+        }catch (DataFormatException e){
             e.printStackTrace();
-            return Response.status(404).build();
+            return Response.status(400).build();
+        } catch(Exception e){
+            e.printStackTrace();
+            return Response.status(403).build();
         }
         String result = "Add " + order;
         System.out.println(result);
@@ -64,9 +67,14 @@ public class OrderService {
     public Response updateOrder(OrderObject order){
         try{
             orderDAO.updateOrder(order);
-        }catch (Exception e){
+        }catch (DataFormatException e){
             e.printStackTrace();
-            return Response.status(404).build();
+            return Response.status(400).build();
+        }catch (AccessDeniedException e){
+            return Response.status(401).build();
+        }catch(Exception e){
+            e.printStackTrace();
+            return Response.status(403).build();
         }
         return Response.status(200).build();
     }
@@ -106,13 +114,13 @@ public class OrderService {
             orderObject = orderDAO.getOrderById(id);
         }catch (Exception e){
             e.printStackTrace();
-            return Response.status(404).build();
+            return Response.status(400).build();
         }
         try {
             orderDAO.deleteOrder(orderObject);
         }catch (Exception e){
             e.printStackTrace();
-            return Response.status(404).build();
+            return Response.status(401).build();
         }
 
         String result = "Delete " + orderObject;

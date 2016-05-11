@@ -19,7 +19,7 @@ public class UserObject implements Serializable{
     @Column(name = "name", nullable = false)
     private String name;
 
-    @Column(name = "login", unique = true, nullable = false)
+    @Column(name = "username", unique = true, nullable = false)
     private String username;
 
     @Column(name = "password", nullable = false)

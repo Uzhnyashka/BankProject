@@ -2,18 +2,16 @@ package com.bankproject.services;
 
 import com.bankproject.DAO.Impl.UserDAOImpl;
 import com.bankproject.DAO.Impl.UserOutputDAOImpl;
-import com.bankproject.objects.TestObject;
 import com.bankproject.objects.UserObject;
 import com.bankproject.objects.UserOutputObject;
-import org.springframework.security.access.annotation.Secured;
-import org.springframework.security.core.authority.GrantedAuthorityImpl;
+import org.springframework.security.access.AccessDeniedException;
 
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
-import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.zip.DataFormatException;
 
 /**
  * Created by bobyk on 04/05/16.
@@ -51,12 +49,14 @@ public class UserService {
     @Path("/add")//checked
     @Consumes(MediaType.APPLICATION_JSON)
     public Response addUser(UserObject usr){
-
         try {
             userDAO.addUser(usr);
+        }catch(DataFormatException e){
+            e.printStackTrace();
+            return Response.status(400).build();
         }catch (Exception e){
             e.printStackTrace();
-            return Response.status(404).build();
+            return Response.status(403).build();
         }
         String result = "Added new " + usr;
         return Response.status(201).entity(result).build();
@@ -65,22 +65,23 @@ public class UserService {
     @DELETE
     @Path("/{username}")//checked
     public Response deleteUser(@PathParam("username") String username){
-        UserObject usr = null;
+        UserObject usr;
         try{
             usr = userDAO.getUserByUsername(username);
         }catch (Exception e){
             e.printStackTrace();
+            return Response.status(400).build();
         }
 
         try{
             userDAO.deleteUser(usr);
         }catch (Exception e){
             e.printStackTrace();
-            return Response.status(404).build();
+            return Response.status(403).build();
         }
 
         String result = "Deleted " + usr;
-        return Response.status(201).entity(result).build();
+        return Response.status(200).entity(result).build();
     }
 
     @PUT
@@ -90,11 +91,15 @@ public class UserService {
     public Response updateUser(UserObject usr){
         try{
             userDAO.updateUser(usr);
-        }catch (Exception e){
+        }catch(AccessDeniedException e){
             e.printStackTrace();
-            return Response.status(403).build();
+            return Response.status(401).build();
         }
-        return Response.status(200).entity("Good").build();
+        catch (Exception e){
+            e.printStackTrace();
+            return Response.status(404).build();
+        }
+        return Response.status(202).entity("Good").build();
     }
 
     @GET

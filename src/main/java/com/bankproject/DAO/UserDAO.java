@@ -7,13 +7,14 @@ import org.springframework.security.core.userdetails.User;
 
 import java.sql.SQLException;
 import java.util.List;
+import java.util.zip.DataFormatException;
 
 /**
  * Created by bobyk on 04/05/16.
  */
 public interface UserDAO {
 
-    void addUser(UserObject usr) throws SQLException;
+    void addUser(UserObject usr) throws SQLException, DataFormatException;
     void deleteUser(UserObject usr) throws SQLException;
     List<UserObject> getAllUsers() throws SQLException;
     void updateUser(UserObject usr) throws SQLException;

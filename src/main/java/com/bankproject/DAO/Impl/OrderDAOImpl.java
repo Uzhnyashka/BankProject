@@ -18,6 +18,7 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.zip.DataFormatException;
 
 /**
  * Created by bobyk on 04/05/16.
@@ -26,7 +27,36 @@ public class OrderDAOImpl implements OrderDAO{
 
     private UserDAOImpl userDAO = new UserDAOImpl();
 
-    public void addOrder(OrderObject order) throws SQLException, AccessDeniedException {
+    private boolean normalData(OrderObject order) throws SQLException{
+        String status = order.getStatus();
+        String operationType = order.getOperationType();
+        Long amount = order.getAmount();
+        String cashType = order.getCashType();
+        Long userId = order.getUserId();
+        System.out.println(status);
+        if (!status.equalsIgnoreCase("publish") && !status.equalsIgnoreCase("not publish")) return false;
+        System.out.println(operationType);
+        if (!operationType.equalsIgnoreCase("sell") && !operationType.equalsIgnoreCase("buy")) return false;
+        System.out.println(amount);
+        if (amount < 0) return false;
+        System.out.println(cashType);
+        if (!(cashType.equalsIgnoreCase("USD") ||
+                cashType.equalsIgnoreCase("EUR") ||
+                cashType.equalsIgnoreCase("UAH") ||
+                cashType.equalsIgnoreCase("RUB"))) return false;
+
+        List<UserObject> users = userDAO.getAllUsers();
+        boolean find = false;
+        for (UserObject user : users){
+            if (user.getId().equals(userId)) {
+                find = true;
+                break;
+            }
+        }
+        return find;
+    }
+
+    public void addOrder(OrderObject order) throws SQLException, AccessDeniedException, DataFormatException {
         UserObject user = userDAO.getUserByUsername(CustomUserDetailService.getUsername());
         if (CustomUserDetailService.getRole().equalsIgnoreCase("user")){
             if (order.getUserId() == null) order.setUserId(user.getId());
@@ -34,6 +64,11 @@ public class OrderDAOImpl implements OrderDAO{
         }
         else {
             if (order.getUserId() == null) order.setUserId(user.getId());
+        }
+
+        System.out.println(order);
+        if (!normalData(order)) {
+            throw new DataFormatException();
         }
 
         Session session = null;
@@ -64,9 +99,9 @@ public class OrderDAOImpl implements OrderDAO{
         return order;
     }
 
-    public void updateOrder(OrderObject order) throws SQLException, AccessDeniedException {
+    public void updateOrder(OrderObject order) throws SQLException, AccessDeniedException, DataFormatException {
         if (order.getId() == null){
-            throw new NullPointerException("Fail data");
+            throw new DataFormatException("Fail data");
         }
         OrderObject newOrder = getOrderById(order.getId());
         order = fillEmptyFields(order, newOrder);
@@ -167,9 +202,6 @@ public class OrderDAOImpl implements OrderDAO{
         UserObject user = userDAO.getUserByUsername(CustomUserDetailService.getUsername());
         for (OrderObject order : orders){
             if (order.getId().equals(id)) {
-                System.out.println(order.getId());
-                System.out.println(order.getUserId());
-                System.out.println(id);
                 if (CustomUserDetailService.getRole().equalsIgnoreCase("user") && !user.getId().equals(order.getUserId())){
                     throw new AccessDeniedException("Access denied");
                 }

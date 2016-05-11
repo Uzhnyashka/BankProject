@@ -17,11 +17,13 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.core.authority.GrantedAuthorityImpl;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 
+import javax.management.BadAttributeValueExpException;
 import javax.swing.*;
 import java.security.spec.ECField;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.zip.DataFormatException;
 
 /**
  * Created by bobyk on 04/05/16.
@@ -34,8 +36,20 @@ public class UserDAOImpl implements UserDAO {
         return passwordEncoder.encode(password);
     }
 
+    private boolean normalData(UserObject usr) throws SQLException{
+        if (!usr.getRole().equalsIgnoreCase("admin") && !usr.getRole().equalsIgnoreCase("user")) return false;
+        String phone = usr.getPhone();
+        for (int i = 0; i < phone.length(); i++){
+            if (!(phone.charAt(i)-'0' >= 0 && phone.charAt(i)-'0' < 10)) return false;
+        }
+        return true;
+    }
+
     @Override
-    public void addUser(UserObject usr) throws SQLException {
+    public void addUser(UserObject usr) throws SQLException, DataFormatException {
+        if (!normalData(usr)) {
+            throw new DataFormatException();
+        }
         Session session = null;
         try {
             session = HibernateUtil.getSessionFactory().openSession();
