@@ -123,13 +123,17 @@ public class UserDAOImpl implements UserDAO {
     }
 
     @Override
-    public void updateUser(UserObject usr) throws SQLException, AccessDeniedException {
+    public void updateUser(UserObject usr) throws SQLException, AccessDeniedException, DataFormatException {
         Session session = null;
         UserObject currentUser = getUserByUsername(CustomUserDetailService.getUsername());
         if (!(CustomUserDetailService.getRole().equalsIgnoreCase("admin") ||
-                usr.getUsername().equals(currentUser.getUsername()))) throw new AccessDeniedException("Access Denied");
+                usr.getUsername().equalsIgnoreCase(currentUser.getUsername()))) throw new AccessDeniedException("Access Denied");
         UserObject newUser = getUserByUsername(usr.getUsername());
         usr = fillEmptyFields(usr, newUser);
+
+        if (!normalData(usr)) {
+            throw new DataFormatException();
+        }
         try {
                 session = HibernateUtil.getSessionFactory().openSession();
                 session.beginTransaction();

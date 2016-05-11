@@ -111,6 +111,10 @@ public class OrderDAOImpl implements OrderDAO{
             if (!order.getUserId().equals(user.getId())) throw new AccessDeniedException("Access Denied");
         }
 
+        if (!normalData(order)){
+            throw new DataFormatException("Fail data");
+        }
+
         Session session = null;
         try{
             session = HibernateUtil.getSessionFactory().openSession();

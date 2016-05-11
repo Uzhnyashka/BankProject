@@ -17,7 +17,7 @@ public interface UserDAO {
     void addUser(UserObject usr) throws SQLException, DataFormatException;
     void deleteUser(UserObject usr) throws SQLException;
     List<UserObject> getAllUsers() throws SQLException;
-    void updateUser(UserObject usr) throws SQLException;
+    void updateUser(UserObject usr) throws SQLException, DataFormatException;
     UserObject getUserByUsername(String username) throws SQLException;
     UserObject getUserById(Long id) throws SQLException;
 }

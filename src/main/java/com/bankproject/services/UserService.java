@@ -91,13 +91,16 @@ public class UserService {
     public Response updateUser(UserObject usr){
         try{
             userDAO.updateUser(usr);
+        }catch (DataFormatException e){
+            e.printStackTrace();
+            return Response.status(400).build();
         }catch(AccessDeniedException e){
             e.printStackTrace();
             return Response.status(401).build();
         }
         catch (Exception e){
             e.printStackTrace();
-            return Response.status(404).build();
+            return Response.status(403).build();
         }
         return Response.status(202).entity("Good").build();
     }
