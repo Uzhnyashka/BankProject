@@ -5,6 +5,7 @@ import com.bankproject.objects.UserObject;
 import com.bankproject.objects.UserOutputObject;
 import com.bankproject.services.CustomUserDetailService;
 import org.springframework.security.access.AccessDeniedException;
+import org.springframework.security.access.prepost.PreAuthorize;
 
 import java.sql.SQLException;
 import java.util.ArrayList;

@@ -14,7 +14,6 @@ import org.springframework.security.access.annotation.Secured;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
-import org.springframework.security.core.authority.GrantedAuthorityImpl;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 
 import javax.management.BadAttributeValueExpException;

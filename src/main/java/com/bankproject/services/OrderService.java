@@ -9,8 +9,11 @@ import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.access.annotation.Secured;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.access.prepost.PreFilter;
-import org.springframework.security.core.authority.GrantedAuthorityImpl;
+import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
 import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Controller;
+import org.springframework.stereotype.Service;
 
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
@@ -24,6 +27,7 @@ import java.util.zip.DataFormatException;
  * Created by bobyk on 27/04/16.
  */
 
+@EnableGlobalMethodSecurity(securedEnabled=true, prePostEnabled=true)
 @Path("/orders")
 public class OrderService {
 

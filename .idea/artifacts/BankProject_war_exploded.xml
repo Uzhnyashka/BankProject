@@ -44,7 +44,6 @@
           <element id="library" level="project" name="Maven: aopalliance:aopalliance:1.0" />
           <element id="library" level="project" name="Maven: org.springframework.security:spring-security-core:3.2.3.RELEASE" />
           <element id="library" level="project" name="Maven: org.springframework.security:spring-security-config:3.2.3.RELEASE" />
-          <element id="library" level="project" name="Hibernate 4.2.2-4.2.2" />
         </element>
       </element>
       <element id="directory" name="META-INF">

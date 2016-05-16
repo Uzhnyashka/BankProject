@@ -3,7 +3,7 @@ package com.bankproject.services;
 import com.bankproject.DAO.Impl.UserDAOImpl;
 import com.bankproject.objects.UserObject;
 import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.authority.GrantedAuthorityImpl;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
@@ -38,12 +38,14 @@ public class CustomUserDetailService implements UserDetailsService {
         }
         Collection<GrantedAuthority> gr = new ArrayList<GrantedAuthority>();
         if (userObject.getRole().equals("admin")) {
-            gr.add(new GrantedAuthorityImpl("ROLE_ADMIN"));
+            gr.add(new SimpleGrantedAuthority("ROLE_ADMIN"));
             role = "admin";
+            System.out.println("admin");
         }
         else {
-            gr.add(new GrantedAuthorityImpl("ROLE_USER"));
+            gr.add(new SimpleGrantedAuthority("ROLE_USER"));
             role = "user";
+            System.out.println("user");
         }
         user = new User(username, userObject.getPassword(), true, true, true, true, gr);
         return user;

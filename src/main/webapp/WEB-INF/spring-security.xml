@@ -1,10 +1,17 @@
 <beans:beans xmlns="http://www.springframework.org/schema/security"
              xmlns:beans="http://www.springframework.org/schema/beans"
              xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+             xmlns:security="http://www.springframework.org/schema/security"
+             xmlns:context="http://www.springframework.org/schema/context"
              xsi:schemaLocation="http://www.springframework.org/schema/beans
-	http://www.springframework.org/schema/beans/spring-beans-3.0.xsd
+	http://www.springframework.org/schema/beans/spring-beans-3.2.xsd
 	http://www.springframework.org/schema/security
-	http://www.springframework.org/schema/security/spring-security-3.2.xsd">
+	http://www.springframework.org/schema/security/spring-security-3.2.xsd
+	http://www.springframework.org/schema/context
+    http://www.springframework.org/schema/context/spring-context-3.2.xsd">
+
+    <global-method-security secured-annotations="enabled" pre-post-annotations="enabled"/>
+    <context:component-scan base-package="com.bankproject" />
 
     <http use-expressions="true" auto-config="true">
         <intercept-url pattern="/rest/users/list" access="hasRole('ROLE_ADMIN') or hasRole('ROLE_USER')"/>
@@ -13,19 +20,26 @@
         <intercept-url pattern="/rest/users/**" method="DELETE" access="hasRole('ROLE_ADMIN')"/>
         <intercept-url pattern="/rest/users/get/**" access="hasRole('ROLE_ADMIN') or hasRole('ROLE_USER')"/>
 
-        <intercept-url pattern="/rest/orders/**" access="hasRole('ROLE_ADMIN') or hasRole('ROLE_USER')"/>
+        <intercept-url pattern="/rest/orders/**" access="hasAnyRole('ROLE_ADMIN', 'ROLE_USER')"/>
         <logout logout-url="/logout"/>
     </http>
-
-    <global-method-security secured-annotations="enabled" />
 
     <beans:bean id="customUserService" class="com.bankproject.services.CustomUserDetailService"/>
     <beans:bean id="encoder" class="org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder"/>
 
     <authentication-manager>
-        <authentication-provider user-service-ref="customUserService">
+       <!-- <authentication-provider user-service-ref="customUserService">
             <password-encoder ref="encoder"/>
+        </authentication-provider>-->
+        <authentication-provider>
+            <user-service>
+                <user name="user" password="user" authorities="ROLE_USER"/>
+                <user name="admin" password="admin" authorities="ROLE_ADMIN"/>
+            </user-service>
         </authentication-provider>
     </authentication-manager>
+
+    <beans:bean id="orderDAO" class="com.bankproject.DAO.Impl.OrderOutputDAOImpl"/>
+    <beans:bean id="orderManager" class="com.bankproject.services.OrderService"/>
 
 </beans:beans>

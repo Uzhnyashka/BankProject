@@ -1,40 +1,43 @@
 package com.bankproject.DAO.Impl;
 
 import com.bankproject.DAO.OrderDAO;
-import com.bankproject.DAO.UserDAO;
 import com.bankproject.objects.OrderObject;
+import com.bankproject.enums.Status;
 import com.bankproject.objects.UserObject;
 import com.bankproject.services.CustomUserDetailService;
 import com.bankproject.utils.HibernateUtil;
-import com.sun.org.apache.xpath.internal.operations.Or;
 import org.hibernate.Criteria;
 import org.hibernate.Session;
 import org.hibernate.criterion.Restrictions;
-import org.hibernate.dialect.H2Dialect;
 import org.springframework.security.access.AccessDeniedException;
 
-import javax.swing.*;
+/*import javax.validation.ConstraintViolation;
+import javax.validation.Validation;
+import javax.validation.Validator;
+import javax.validation.ValidatorFactory;*/
 import java.sql.SQLException;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.List;
+import java.util.Set;
 import java.util.zip.DataFormatException;
 
 /**
  * Created by bobyk on 04/05/16.
  */
+
+//@Transactional(readOnly = true)
 public class OrderDAOImpl implements OrderDAO{
 
     private UserDAOImpl userDAO = new UserDAOImpl();
+  /*  ValidatorFactory vf = Validation.buildDefaultValidatorFactory();
+    Validator validator = vf.getValidator();*/
 
     private boolean normalData(OrderObject order) throws SQLException{
-        String status = order.getStatus();
+        Status status = order.getStatus();
         String operationType = order.getOperationType();
         Long amount = order.getAmount();
         String cashType = order.getCashType();
         Long userId = order.getUserId();
-        System.out.println(status);
-        if (!status.equalsIgnoreCase("publish") && !status.equalsIgnoreCase("not publish")) return false;
         System.out.println(operationType);
         if (!operationType.equalsIgnoreCase("sell") && !operationType.equalsIgnoreCase("buy")) return false;
         System.out.println(amount);
@@ -56,6 +59,21 @@ public class OrderDAOImpl implements OrderDAO{
         return find;
     }
 
+ /*   public static void validate(Object object, Validator validator) {
+        Set<ConstraintViolation<Object>> constraintViolations = validator
+                .validate(object);
+
+        System.out.println(object);
+        System.out.println(String.format("Кол-во ошибок: %d",
+                constraintViolations.size()));
+
+        for (ConstraintViolation<Object> cv : constraintViolations)
+            System.out.println(String.format(
+                    "Внимание, ошибка! property: [%s], value: [%s], message: [%s]",
+                    cv.getPropertyPath(), cv.getInvalidValue(), cv.getMessage()));
+    }*/
+
+  //  @Transactional(readOnly = false, propagation = Propagation.REQUIRED)
     public void addOrder(OrderObject order) throws SQLException, AccessDeniedException, DataFormatException {
         UserObject user = userDAO.getUserByUsername(CustomUserDetailService.getUsername());
         if (CustomUserDetailService.getRole().equalsIgnoreCase("user")){
@@ -66,10 +84,12 @@ public class OrderDAOImpl implements OrderDAO{
             if (order.getUserId() == null) order.setUserId(user.getId());
         }
 
-        System.out.println(order);
+       // validate(order, validator);
+
+    /*    System.out.println(order);
         if (!normalData(order)) {
             throw new DataFormatException();
-        }
+        }*/
 
         Session session = null;
         try {
@@ -77,6 +97,7 @@ public class OrderDAOImpl implements OrderDAO{
             session.beginTransaction();
             session.save(order);
             session.getTransaction().commit();
+            //getHibernateTemplate().save(order);
         }catch (Exception e){
             throw new SQLException();
         }finally {
@@ -170,7 +191,7 @@ public class OrderDAOImpl implements OrderDAO{
             UserObject user = userDAO.getUserByUsername(CustomUserDetailService.getUsername());
             for(OrderObject order : orders){
                 if (order.getUserId().equals(user.getId()) ||
-                        order.getStatus().equalsIgnoreCase("publish")) ordersForUser.add(order);
+                        order.getStatus() == Status.publish) ordersForUser.add(order);
             }
             return ordersForUser;
         }
@@ -178,12 +199,12 @@ public class OrderDAOImpl implements OrderDAO{
     }
 
     @Override
-    public List<OrderObject> getOrdersByUsername(String login) throws SQLException, AccessDeniedException {
+    public List<OrderObject> getOrdersByUsername(String login) throws SQLException {
         Session session = null;
         List<OrderObject> orders = new ArrayList<OrderObject>();
         UserObject user = userDAO.getUserByUsername(login);
-        if (CustomUserDetailService.getRole().equalsIgnoreCase("user")
-                && !CustomUserDetailService.getUsername().equalsIgnoreCase(login)) throw new AccessDeniedException("Access denied");
+       /* if (CustomUserDetailService.getRole().equalsIgnoreCase("user")
+                && !CustomUserDetailService.getUsername().equalsIgnoreCase(login)) throw new AccessDeniedException("Access denied");*/
         try{
             session = HibernateUtil.getSessionFactory().openSession();
             session.getTransaction();

@@ -1,10 +1,10 @@
 package com.bankproject.objects;
 
-import javax.management.relation.Role;
+import com.bankproject.enums.Status;
+
 import javax.persistence.*;
 import java.io.Serializable;
 import java.util.Date;
-import java.util.List;
 
 /**
  * Created by bobyk on 04/05/16.
@@ -35,7 +35,9 @@ public class OrderObject implements Serializable {
     private Long amount;
 
     @Column(name = "status", nullable = false)
-    private String status;
+   // @Size(min = 3)
+    @Enumerated(EnumType.STRING)
+    private Status status;
 
     public Long getId() {
         return id;
@@ -85,11 +87,11 @@ public class OrderObject implements Serializable {
         this.amount = amount;
     }
 
-    public String getStatus() {
+    public Status getStatus() {
         return status;
     }
 
-    public void setStatus(String status) {
+    public void setStatus(Status status) {
         this.status = status;
     }
 
